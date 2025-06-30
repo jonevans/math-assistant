@@ -15,13 +15,23 @@ export interface ModelInfo {
 // Define available models for document QA
 export const AVAILABLE_MODELS: ModelInfo[] = [
   {
+    id: 'gpt-4o',
+    name: 'GPT-4o',
+    description: 'Advanced model with superior reasoning for complex document analysis.',
+    capabilities: ['Advanced reasoning', 'Complex document analysis', 'Mathematical understanding'],
+    contextWindow: 128000,
+    cost: 'Medium',
+    isDefault: true, // Set as default
+    available: true
+  },
+  {
     id: 'gpt-4o-mini',
     name: 'GPT-4o Mini',
     description: 'Fast and efficient model for document analysis and Q&A.',
     capabilities: ['Document analysis', 'Text reasoning', 'Conversation'],
     contextWindow: 128000,
     cost: 'Very Low',
-    isDefault: true, // Set as default to match assistant
+    isDefault: false,
     available: true
   },
   {

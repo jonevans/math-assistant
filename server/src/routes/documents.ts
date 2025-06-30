@@ -481,8 +481,11 @@ router.post('/query', async (req: UserRequest, res: Response) => {
       ]
     };
     
-    // Always use gpt-4o-mini to avoid temperature parameter issues
-    runConfig.model = 'gpt-4o-mini';
+    // Use selected model, but let assistant default handle gpt-4o-mini
+    if (selectedModelId !== 'gpt-4o-mini') {
+      runConfig.model = selectedModelId;
+    }
+    // For gpt-4o-mini, let the assistant use its configured model to avoid parameter conflicts
     
     // Add reasoning_effort for o3 models
     if (selectedModelId.startsWith('o3')) {
