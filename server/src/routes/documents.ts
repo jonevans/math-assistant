@@ -470,7 +470,9 @@ router.post('/query', async (req: UserRequest, res: Response) => {
 
     // Run assistant with file search tool and selected model
     console.log(`[QUERY] Running assistant with vector store ID: ${user.vectorStoreId} and model: ${selectedModelId}`);
-    const run = await openai.beta.threads.runs.create(thread.id, {
+    
+    // Prepare run configuration
+    const runConfig: any = {
       assistant_id: process.env.OPENAI_ASSISTANT_ID || "asst_dxxSHuryqquwSCK7fxBQXoiJ",
       model: selectedModelId,
       tools: [
@@ -478,7 +480,14 @@ router.post('/query', async (req: UserRequest, res: Response) => {
           type: "file_search"
         }
       ]
-    });
+    };
+    
+    // Add reasoning_effort for o3 models
+    if (selectedModelId.startsWith('o3')) {
+      runConfig.reasoning_effort = 'medium';
+    }
+    
+    const run = await openai.beta.threads.runs.create(thread.id, runConfig);
     console.log(`[QUERY] Started run with ID: ${run.id}`);
 
     res.json({
