@@ -15,14 +15,14 @@ export interface ModelInfo {
 // Define available models for document QA
 export const AVAILABLE_MODELS: ModelInfo[] = [
   {
-    id: 'o4-mini',
-    name: 'o4-mini (Not Yet Available)',
-    description: 'Compact high-performance model with strong reasoning capabilities.',
-    capabilities: ['Efficient reasoning', 'Advanced document understanding', 'Mathematical equation support'],
-    contextWindow: 64000,
-    cost: 'Low',
-    isDefault: false,
-    available: false // Mark as not available
+    id: 'gpt-4o-mini',
+    name: 'GPT-4o Mini',
+    description: 'Fast and efficient model for document analysis and Q&A.',
+    capabilities: ['Document analysis', 'Text reasoning', 'Conversation'],
+    contextWindow: 128000,
+    cost: 'Very Low',
+    isDefault: true, // Set as default to match assistant
+    available: true
   },
   {
     id: 'o3-mini',
@@ -31,8 +31,18 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
     capabilities: ['Efficient reasoning', 'Fast document processing', 'Good for complex tasks'],
     contextWindow: 16000,
     cost: 'Very Low',
-    isDefault: true, // Set as default
+    isDefault: false,
     available: true
+  },
+  {
+    id: 'o4-mini',
+    name: 'o4-mini (Not Yet Available)',
+    description: 'Compact high-performance model with strong reasoning capabilities.',
+    capabilities: ['Efficient reasoning', 'Advanced document understanding', 'Mathematical equation support'],
+    contextWindow: 64000,
+    cost: 'Low',
+    isDefault: false,
+    available: false // Mark as not available
   }
 ];
 

@@ -474,13 +474,17 @@ router.post('/query', async (req: UserRequest, res: Response) => {
     // Prepare run configuration
     const runConfig: any = {
       assistant_id: process.env.OPENAI_ASSISTANT_ID || "asst_dxxSHuryqquwSCK7fxBQXoiJ",
-      model: selectedModelId,
       tools: [
         { 
           type: "file_search"
         }
       ]
     };
+    
+    // Only add model override if it's not gpt-4o-mini (let assistant use its configured model)
+    if (selectedModelId !== 'gpt-4o-mini') {
+      runConfig.model = selectedModelId;
+    }
     
     // Add reasoning_effort for o3 models
     if (selectedModelId.startsWith('o3')) {
