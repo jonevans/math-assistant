@@ -22,7 +22,10 @@ const port = process.env.PORT || 3001;
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000'],
+  origin: [
+    'http://localhost:3000',
+    'https://math-assistant-client.onrender.com'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
