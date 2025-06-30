@@ -83,6 +83,11 @@ mongoose.connect(MONGODB_URI)
     console.error('Error connecting to MongoDB:', error);
   });
 
+// API health check endpoint
+app.get('/api', (req, res) => {
+  res.send('Math Assistant API is running');
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
