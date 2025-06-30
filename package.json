@@ -1,0 +1,20 @@
+{
+  "name": "math-pdf-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "start": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "dev:client": "cd client && npm start",
+    "dev:server": "cd server && npm run dev",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  }
+} 
