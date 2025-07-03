@@ -418,7 +418,15 @@ const Home: React.FC = () => {
       setDocuments([...documents, response.data]);
     } catch (error: any) {
       console.error('Upload failed:', error);
-      setUploadError(error.response?.data?.error || 'Upload failed. Please try again.');
+      let errorMessage = 'Upload failed. Please try again.';
+      
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message?.includes('large') || error.response?.status === 413) {
+        errorMessage = 'File is too large. Maximum file size is 50MB.';
+      }
+      
+      setUploadError(errorMessage);
     } finally {
       setIsUploading(false);
     }
