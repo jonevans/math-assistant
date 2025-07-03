@@ -453,33 +453,53 @@ const Home: React.FC = () => {
 
       const { threadId, runId } = response.data;
 
-      // Poll for result
-      const checkResult = async () => {
-        const resultResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/documents/result/${threadId}/${runId}`
-        );
-
-        if (resultResponse.data.status === 'completed') {
-          const newMessages = resultResponse.data.messages;
-          // Just add the assistant's response
-          if (newMessages.length > 0) {
-            const assistantMessage = newMessages.find((msg: any) => msg.role === 'assistant');
-            if (assistantMessage) {
-              setMessages(prev => [...prev, assistantMessage]);
-            }
-          }
-          setIsLoading(false);
-          setQuery('');
-        } else if (resultResponse.data.status === 'failed') {
-          console.error('Query failed:', resultResponse.data.error);
+      // Poll for result with exponential backoff and timeout
+      const checkResult = async (attempt = 0) => {
+        const maxAttempts = 60; // 5 minutes max wait time
+        
+        if (attempt >= maxAttempts) {
+          console.error('Query timeout: Maximum polling attempts reached');
           setMessages(prev => [
             ...prev, 
-            { role: 'assistant', content: 'Sorry, I encountered an error processing your request.' }
+            { role: 'assistant', content: 'Sorry, the request timed out. Please try again.' }
           ]);
           setIsLoading(false);
-        } else {
-          // Continue polling
-          setTimeout(checkResult, 1000);
+          return;
+        }
+
+        try {
+          const resultResponse = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/documents/result/${threadId}/${runId}`
+          );
+
+          if (resultResponse.data.status === 'completed') {
+            const newMessages = resultResponse.data.messages;
+            // Just add the assistant's response
+            if (newMessages.length > 0) {
+              const assistantMessage = newMessages.find((msg: any) => msg.role === 'assistant');
+              if (assistantMessage) {
+                setMessages(prev => [...prev, assistantMessage]);
+              }
+            }
+            setIsLoading(false);
+            setQuery('');
+          } else if (resultResponse.data.status === 'failed') {
+            console.error('Query failed:', resultResponse.data.error);
+            setMessages(prev => [
+              ...prev, 
+              { role: 'assistant', content: 'Sorry, I encountered an error processing your request.' }
+            ]);
+            setIsLoading(false);
+          } else {
+            // Continue polling with exponential backoff (max 5 seconds)
+            const delay = Math.min(1000 + (attempt * 200), 5000);
+            setTimeout(() => checkResult(attempt + 1), delay);
+          }
+        } catch (error) {
+          console.error('Polling error:', error);
+          // Retry with exponential backoff
+          const delay = Math.min(1000 + (attempt * 200), 5000);
+          setTimeout(() => checkResult(attempt + 1), delay);
         }
       };
 

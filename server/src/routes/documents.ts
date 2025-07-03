@@ -176,6 +176,13 @@ router.post('/upload', upload.single('file'), async (req: UserRequest, res: Resp
 
     await document.save();
 
+    // Link assistant to user's vector store (only during upload for performance)
+    console.log(`[UPLOAD] Linking assistant to vector store: ${vectorStoreId}`);
+    const linkResult = await linkUserAssistantToVectorStore(userId);
+    if (!linkResult) {
+      console.error('[UPLOAD] Failed to link assistant to vector store during upload');
+    }
+
     // Try to immediately check vector file status
     if (vectorStoreId && vectorFileId) {
       try {
@@ -430,32 +437,12 @@ router.post('/query', async (req: UserRequest, res: Response) => {
       console.log(`[QUERY] No document filtering needed (all documents are ${activeDocuments.length > 0 ? 'active' : 'inactive'})`);
     }
 
-    // Check if files in the vector store are ready
-    try {
-      const vectorStoreFiles = await openai.vectorStores.files.list(user.vectorStoreId);
-      console.log(`[QUERY] Vector store contains ${vectorStoreFiles.data.length} files:`);
-      
-      let allFilesReady = true;
-      for (const file of vectorStoreFiles.data) {
-        console.log(`[QUERY] - File ID: ${file.id}, Status: ${file.status}`);
-        if (file.status !== 'completed') {
-          allFilesReady = false;
-        }
-      }
-      
-      if (!allFilesReady) {
-        console.log('[QUERY] Warning: Not all files are fully processed yet. This may affect search results.');
-      }
-    } catch (error) {
-      console.error('[QUERY] Error checking vector store files:', error);
-    }
-
-    // Link the assistant to this user's vector store
-    console.log(`[QUERY] Linking assistant to user's vector store: ${user.vectorStoreId}`);
-    const linkResult = await linkUserAssistantToVectorStore(req.user._id.toString());
-    if (!linkResult) {
-      console.error('[QUERY] Failed to link assistant to vector store. Trying to continue anyway.');
-    }
+    // Only link assistant if vector store has changed (performance optimization)
+    console.log(`[QUERY] Using vector store ID: ${user.vectorStoreId}`);
+    
+    // Skip expensive assistant linking for better performance
+    // The assistant is already configured with the vector store during upload
+    console.log(`[QUERY] Skipping assistant re-linking for performance (already linked during upload)`)
 
     // Create a thread
     const thread = await openai.beta.threads.create();
